@@ -1,52 +1,96 @@
 // gamemanager.dart
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'triangle.dart';
+import 'package:triangle_wars/bullet.dart';
 import 'sphere.dart';
+import 'triangle.dart';
+
+// gamemanager.dart
 
 class GameManager {
   Triangle triangle;
   List<Sphere> spheres = [];
-  double deltaTime = 0.0; // Time elapsed for game logic
-  int score = 0; // Score based on how long the triangle survives
+  List<Bullet> bullets = []; // List to store the bullets
+  double deltaTime = 0.0;
+  int score = 0;
+  bool isRoundActive = false;
 
   GameManager({required this.triangle});
 
-  void spawnSphere() {
-    // Logic to spawn spheres (randomize attributes)
-    double size = (50 + (100 * 0.5)); // Randomize size
-    double speed = 1.0; // Randomize speed
-    Color color = Colors.blue; // Randomize color
-    Color fillColor = Colors.red; // Randomize fill color
+  void startNewRound() {
+    isRoundActive = true;
+    score = 0;
+    spheres.clear();
+    spawnSpheres();
+  }
 
-    Sphere newSphere = Sphere(
-      x: 100, // Example position
-      y: 0,
-      size: size,
-      speed: speed,
-      color: color,
-      fillColor: fillColor,
-    );
-    spheres.add(newSphere);
+  void spawnSpheres() {
+    Random rand = Random();
+    for (int i = 0; i < 5; i++) {
+      double angle = rand.nextDouble() * 2 * pi;
+      double distance = 100 + rand.nextDouble() * 100;
+      double x = triangle.x + cos(angle) * distance;
+      double y = triangle.y + sin(angle) * distance;
+      double size = 20 + rand.nextDouble() * 40;
+      double speed = 1.0 + rand.nextDouble() * 2;
+      Color color = Color.fromRGBO(
+          rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 1);
+      Color fillColor = Color.fromRGBO(
+          rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 1);
+      Sphere sphere = Sphere(
+          x: x,
+          y: y,
+          size: size,
+          speed: speed,
+          color: color,
+          fillColor: fillColor);
+      spheres.add(sphere);
+    }
   }
 
   void update(double deltaTime) {
+    if (!isRoundActive) return;
+
     this.deltaTime = deltaTime;
+
+    // Move each sphere towards the triangle
     for (var sphere in spheres) {
-      sphere.move();
+      sphere.move(triangle.x, triangle.y);
     }
+
+    // Move each bullet and check collisions
+    for (var bullet in bullets) {
+      bullet.move();
+    }
+
+    // Check collisions between bullets and spheres
     checkCollisions();
   }
 
   void checkCollisions() {
+    for (var bullet in bullets) {
+      for (var sphere in spheres) {
+        double distance =
+            sqrt(pow(bullet.x - sphere.x, 2) + pow(bullet.y - sphere.y, 2));
+        if (distance < sphere.size / 2) {
+          // Bullet hits the sphere
+          spheres.remove(sphere);
+          bullets.remove(bullet);
+          score += 10; // Increase score for destroying a sphere
+          break; // Exit loop after collision
+        }
+      }
+    }
+
+    // Check if triangle is hit by any spheres
     for (var sphere in spheres) {
       double distance =
-          (triangle.x - sphere.x).abs() + (triangle.y - sphere.y).abs();
+          sqrt(pow(triangle.x - sphere.x, 2) + pow(triangle.y - sphere.y, 2));
       if (distance < sphere.size / 2) {
-        triangle.health -= sphere.size; // Deduct health based on sphere size
+        triangle.health -= sphere.size; // Reduce health based on sphere size
         spheres.remove(sphere);
         if (triangle.health <= 0) {
-          // Triangle loses all health
+          isRoundActive = false;
           saveProgress();
           resetGame();
         }
@@ -54,28 +98,17 @@ class GameManager {
     }
   }
 
-  // Save the triangle's progress to SharedPreferences
   Future<void> saveProgress() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('triangleSpeed', triangle.speed);
-    await prefs.setDouble('triangleAttackPower', triangle.attackPower);
-    await prefs.setDouble('triangleHealth', triangle.health);
-    await prefs.setInt('score', score);
+    // Save game progress (not implemented)
   }
 
-  // Load the progress from SharedPreferences
   Future<void> loadProgress() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    triangle.speed = prefs.getDouble('triangleSpeed') ?? 5.0;
-    triangle.attackPower = prefs.getDouble('triangleAttackPower') ?? 1.0;
-    triangle.health = prefs.getDouble('triangleHealth') ?? 100.0;
-    score = prefs.getInt('score') ?? 0;
+    // Load game progress (not implemented)
   }
 
-  // Reset the game after the triangle loses all health
   void resetGame() {
     triangle.health = 100.0;
     score = 0;
-    // Add logic to spawn new spheres or reset game state
+    spheres.clear();
   }
 }

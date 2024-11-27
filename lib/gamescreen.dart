@@ -1,31 +1,48 @@
 // gamescreen.dart
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/scheduler.dart'; // For Ticker
+import 'package:triangle_wars/gamepainter.dart';
 import 'gamemanager.dart';
 import 'triangle.dart';
+import 'sphere.dart';
 
 class GameScreen extends StatefulWidget {
   @override
   _GameScreenState createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen>
+    with SingleTickerProviderStateMixin {
   late GameManager _gameManager;
+  late Ticker _ticker;
+  bool _isGameRunning = false;
 
   @override
   void initState() {
     super.initState();
     _gameManager = GameManager(triangle: Triangle(x: 200, y: 400));
     _loadProgress();
+    _ticker = Ticker(_onTick);
   }
 
-  // Load game progress when the screen starts
   void _loadProgress() async {
     await _gameManager.loadProgress();
     setState(() {});
   }
 
-  // Upgrade buttons
+  void _onTick(Duration elapsed) {
+    setState(() {
+      _gameManager.update(elapsed.inMilliseconds / 1000.0);
+    });
+  }
+
+  void _startNewRound() {
+    setState(() {
+      _gameManager.startNewRound();
+    });
+    _ticker.start();
+  }
+
   void _upgradeSpeed() {
     setState(() {
       _gameManager.triangle.upgradeSpeed(1.0);
@@ -44,7 +61,6 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  // Upgrade panel with buttons
   Widget _buildUpgradePanel() {
     return Column(
       children: [
@@ -54,6 +70,8 @@ class _GameScreenState extends State<GameScreen> {
             child: Text('Upgrade Attack Power')),
         ElevatedButton(
             onPressed: _upgradeHealth, child: Text('Upgrade Health')),
+        ElevatedButton(
+            onPressed: _startNewRound, child: Text('Start New Round')),
       ],
     );
   }
@@ -69,6 +87,11 @@ class _GameScreenState extends State<GameScreen> {
                 .move(details.localPosition.dx, details.localPosition.dy);
           });
         },
+        onTap: () {
+          setState(() {
+            _gameManager.triangle.shoot(); // Shoot when screen is tapped
+          });
+        },
         child: Column(
           children: [
             CustomPaint(
@@ -80,37 +103,5 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
-  }
-}
-
-class GamePainter extends CustomPainter {
-  final GameManager gameManager;
-
-  GamePainter({required this.gameManager});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    paint.color = Colors.green;
-    // Draw the triangle
-    canvas.drawPath(
-      Path()
-        ..moveTo(gameManager.triangle.x, gameManager.triangle.y)
-        ..lineTo(gameManager.triangle.x + 20, gameManager.triangle.y + 30)
-        ..lineTo(gameManager.triangle.x - 20, gameManager.triangle.y + 30)
-        ..close(),
-      paint,
-    );
-
-    // Draw the spheres
-    for (var sphere in gameManager.spheres) {
-      paint.color = sphere.color;
-      canvas.drawCircle(Offset(sphere.x, sphere.y), sphere.size / 2, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 }
