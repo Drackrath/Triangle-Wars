@@ -50,9 +50,12 @@ class Triangle {
 
   // Fire a bullet in the direction the triangle is facing
   void shoot() {
-    double bulletX = x + cos(rotation) * size;
-    double bulletY = y + sin(rotation) * size;
-    double bulletAngle = rotation;
+    // Calculate the tip of the triangle as the bullet's starting position
+    double bulletX = x + cos(rotation - pi / 2) * (size / 2);
+    double bulletY = y + sin(rotation - pi / 2) * (size / 2);
+
+    // The bullet's angle matches the triangle's rotation
+    double bulletAngle = rotation - pi / 2;
 
     // Create and add the new bullet to the list
     bullets.add(Bullet(x: bulletX, y: bulletY, angle: bulletAngle));
@@ -63,9 +66,9 @@ class Triangle {
     double dx = targetX - x;
     double dy = targetY - y;
 
-    double targetAngle = atan2(dy, dx);
+    double targetAngle = atan2(dy, dx) + pi / 2;
     rotation = lerpRotation(rotation, targetAngle, rotationSpeed);
-    debugPrint('dx: $dx, dy: $dy, targetAngle: $targetAngle');
+    // debugPrint('dx: $dx, dy: $dy, targetAngle: $targetAngle');
   }
 
   List<double> calculateLineOffsets(
@@ -73,7 +76,7 @@ class Triangle {
     double dx = targetX - x;
     double dy = targetY - y;
 
-    double targetAngle = atan2(dy, dx) - pi;
+    double targetAngle = atan2(dy, dx) + pi / 2;
     rotation = lerpRotation(rotation, targetAngle, rotationSpeed);
     // Calculate the end point of the line based on the rotation angle
     double endX = x + cos(rotation) * length;
