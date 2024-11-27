@@ -26,7 +26,7 @@ class GameManager {
 
   void spawnSpheres() {
     Random rand = Random();
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 1; i++) {
       double angle = rand.nextDouble() * 2 * pi;
       double distance = 100 + rand.nextDouble() * 100;
       double x = triangle.x + cos(angle) * distance;

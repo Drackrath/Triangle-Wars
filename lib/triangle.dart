@@ -1,6 +1,8 @@
 // triangle.dart
 import 'dart:math'; // For math functions like atan2
 import 'package:triangle_wars/bullet.dart';
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
 
 // triangle.dart
 
@@ -63,6 +65,22 @@ class Triangle {
 
     double targetAngle = atan2(dy, dx);
     rotation = lerpRotation(rotation, targetAngle, rotationSpeed);
+    debugPrint('dx: $dx, dy: $dy, targetAngle: $targetAngle');
+  }
+
+  List<double> calculateLineOffsets(
+      double targetX, double targetY, double length) {
+    double dx = targetX - x;
+    double dy = targetY - y;
+
+    double targetAngle = atan2(dy, dx) - pi;
+    rotation = lerpRotation(rotation, targetAngle, rotationSpeed);
+    // Calculate the end point of the line based on the rotation angle
+    double endX = x + cos(rotation) * length;
+    double endY = y + sin(rotation) * length;
+
+    // Return the start and end offsets
+    return [x, y, endX, endY];
   }
 
   double lerpRotation(double currentAngle, double targetAngle, double speed) {

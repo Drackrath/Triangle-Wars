@@ -39,6 +39,11 @@ class GamePainter extends CustomPainter {
 
       // Rotate the triangle to face the closest sphere
       gameManager.triangle.rotateTowards(closestSphere.x, closestSphere.y);
+
+      List<double> offsets = gameManager.triangle
+          .calculateLineOffsets(closestSphere.x, closestSphere.y, 50.0);
+      canvas.drawLine(Offset(offsets[0], offsets[1]),
+          Offset(offsets[2], offsets[3]), paint);
     }
 
     // Draw the triangle
