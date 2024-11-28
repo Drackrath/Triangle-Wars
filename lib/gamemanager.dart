@@ -26,13 +26,13 @@ class GameManager {
 
   void spawnSpheres() {
     Random rand = Random();
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < rand.nextInt(15); i++) {
       double angle = rand.nextDouble() * 2 * pi;
       double distance = 100 + rand.nextDouble() * 100;
       double x = triangle.x + cos(angle) * distance;
       double y = triangle.y + sin(angle) * distance;
       double size = 20 + rand.nextDouble() * 40;
-      double speed = 0 + rand.nextDouble() * 0.1;
+      double speed = rand.nextDouble() * 1.1;
       Color color = Color.fromRGBO(
           rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 1);
       Color fillColor = Color.fromRGBO(
@@ -72,8 +72,11 @@ class GameManager {
   void checkCollisions() {
     List<Sphere> spheresToRemove = [];
     List<Bullet> bulletsToRemove = [];
+    bullets = triangle.bullets; // Get the bullets from the triangle
 
+    debugPrint("Checking collisions ${bullets.length}, ${spheres.length}");
     for (var bullet in bullets) {
+      debugPrint("Checking bullet at ${bullet.x}, ${bullet.y}");
       for (var sphere in spheres) {
         double dx = bullet.x - sphere.x;
         double dy = bullet.y - sphere.y;
