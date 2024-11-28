@@ -17,7 +17,7 @@ class Triangle {
   Triangle({
     required this.x,
     required this.y,
-    this.speed = 5.0,
+    this.speed = 1.0,
     this.attackSpeed = 1.0,
     this.attackPower = 1.0,
     this.range = 100.0,
@@ -54,7 +54,8 @@ class Triangle {
     double bulletAngle = rotation - pi / 2;
 
     // Create and add the new bullet to the list
-    bullets.add(Bullet(x: bulletX, y: bulletY, angle: bulletAngle));
+    bullets
+        .add(Bullet(x: bulletX, y: bulletY, angle: bulletAngle, speed: speed));
   }
 
   // Smoothly rotate triangle to face a specific point (e.g., nearest sphere)

@@ -23,19 +23,20 @@ class Sphere {
   });
 
   // Move the sphere towards the triangle's position
-  void move(double targetX, double targetY) {
+  void move(double targetX, double targetY, double deltaTime) {
     double dx = targetX - x;
     double dy = targetY - y;
     double distance = sqrt(dx * dx + dy * dy); // Calculate distance to target
 
     if (distance == 0) return; // Avoid division by zero
 
-    // Normalize the direction vector and move the sphere
+    // Normalize the direction vector
     double directionX = dx / distance;
     double directionY = dy / distance;
 
-    x += directionX * speed;
-    y += directionY * speed;
+    // Move the sphere, factoring in deltaTime
+    x += directionX * speed * deltaTime;
+    y += directionY * speed * deltaTime;
   }
 
   void takeDamage(double amount) {

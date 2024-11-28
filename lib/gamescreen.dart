@@ -13,6 +13,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen>
     with SingleTickerProviderStateMixin {
   late GameManager _gameManager;
+  double _lastTime = 0.0;
   late Ticker _ticker;
   bool _isGameRunning = false;
 
@@ -30,8 +31,12 @@ class _GameScreenState extends State<GameScreen>
   }
 
   void _onTick(Duration elapsed) {
+    double currentTime = elapsed.inMilliseconds / 1000.0; // Convert to seconds
+    double deltaTime =
+        (currentTime - _lastTime) * 100 * 2; // Time passed since last tick
+    _lastTime = currentTime; // Update last time
     setState(() {
-      _gameManager.update(elapsed.inMilliseconds / 1000.0);
+      _gameManager.update(deltaTime);
     });
   }
 

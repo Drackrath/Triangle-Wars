@@ -14,6 +14,8 @@ class GameManager {
   double deltaTime = 0.0;
   int score = 0;
   bool isRoundActive = false;
+  double _timeSinceLastShot = 0.0;
+  final double shootInterval = 100; // Time between shots in seconds
 
   GameManager({required this.triangle});
 
@@ -28,11 +30,11 @@ class GameManager {
     Random rand = Random();
     for (int i = 0; i < rand.nextInt(15); i++) {
       double angle = rand.nextDouble() * 2 * pi;
-      double distance = 100 + rand.nextDouble() * 100;
+      double distance = 300 + rand.nextDouble() * 100;
       double x = triangle.x + cos(angle) * distance;
       double y = triangle.y + sin(angle) * distance;
-      double size = 20 + rand.nextDouble() * 40;
-      double speed = rand.nextDouble() * 1.1;
+      double size = 5 + rand.nextDouble() * 40;
+      double speed = 0.2 + rand.nextDouble() * 0.1;
       Color color = Color.fromRGBO(
           rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 1);
       Color fillColor = Color.fromRGBO(
@@ -57,12 +59,19 @@ class GameManager {
 
     // Move each sphere towards the triangle
     for (var sphere in spheres) {
-      sphere.move(triangle.x, triangle.y);
+      sphere.move(triangle.x, triangle.y, deltaTime);
     }
 
     // Move each bullet and check collisions
     for (var bullet in bullets) {
-      bullet.move();
+      bullet.move(deltaTime);
+    }
+
+    _timeSinceLastShot += deltaTime;
+
+    if (_timeSinceLastShot >= shootInterval) {
+      triangle.shoot(); // Trigger the shooting logic
+      _timeSinceLastShot = 0.0; // Reset the timer
     }
 
     // Check collisions between bullets and spheres
@@ -74,15 +83,11 @@ class GameManager {
     List<Bullet> bulletsToRemove = [];
     bullets = triangle.bullets; // Get the bullets from the triangle
 
-    debugPrint("Checking collisions ${bullets.length}, ${spheres.length}");
     for (var bullet in bullets) {
-      debugPrint("Checking bullet at ${bullet.x}, ${bullet.y}");
       for (var sphere in spheres) {
         double dx = bullet.x - sphere.x;
         double dy = bullet.y - sphere.y;
         double distance = sqrt(dx * dx + dy * dy);
-
-        debugPrint("Hit calculation at dx:$dx, dy:$dy");
 
         //double collisionThreshold = sphere.size / 2; // Radius of the sphere
         // If bullets have size, add bullet radius:
@@ -99,9 +104,6 @@ class GameManager {
           bulletsToRemove.add(bullet); // Mark bullet for removal
           debugPrint("Bullet hit on sphere at ${bullet.x}, ${bullet.y}");
           break; // Exit loop after collision
-        } else {
-          debugPrint(
-              "No hit: Distance = $distance, Threshold = $collisionThreshold");
         }
       }
     }

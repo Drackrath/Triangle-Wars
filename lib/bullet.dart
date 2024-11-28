@@ -13,14 +13,14 @@ class Bullet {
     required this.x,
     required this.y,
     required this.angle,
-    this.speed = 5.0,
+    this.speed = 1.0,
     this.size = 5.0,
     this.color = Colors.red,
   });
 
   // Move the bullet towards its target direction
-  void move() {
-    x += cos(angle) * speed;
-    y += sin(angle) * speed;
+  void move(double deltaTime) {
+    x += cos(angle) * speed * deltaTime;
+    y += sin(angle) * speed * deltaTime;
   }
 }

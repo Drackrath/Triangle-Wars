@@ -62,7 +62,6 @@ class GamePainter extends CustomPainter {
 
     // Draw the bullets fired by the triangle
     for (var bullet in gameManager.triangle.bullets) {
-      bullet.move(); // Move the bullet based on its angle and speed
       paint.color = Colors.red; // Bullet color
       canvas.drawCircle(Offset(bullet.x, bullet.y), bullet.size / 2, paint);
     }
