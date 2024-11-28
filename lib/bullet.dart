@@ -7,6 +7,7 @@ class Bullet {
   double speed; // Speed of the bullet
   double angle; // Direction in radians
   double size; // Size of the bullet
+  Color color; // Color of the bullet
 
   Bullet({
     required this.x,
@@ -14,6 +15,7 @@ class Bullet {
     required this.angle,
     this.speed = 5.0,
     this.size = 5.0,
+    this.color = Colors.red,
   });
 
   // Move the bullet towards its target direction

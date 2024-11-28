@@ -1,10 +1,7 @@
 // gamepainter.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
 import 'gamemanager.dart';
 import 'sphere.dart';
-import 'bullet.dart';
 
 class GamePainter extends CustomPainter {
   final GameManager gameManager;

@@ -1,10 +1,6 @@
 // triangle.dart
 import 'dart:math'; // For math functions like atan2
 import 'package:triangle_wars/bullet.dart';
-import 'dart:developer' as developer;
-import 'package:flutter/foundation.dart';
-
-// triangle.dart
 
 class Triangle {
   double x, y;

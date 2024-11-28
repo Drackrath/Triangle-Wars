@@ -4,7 +4,6 @@ import 'package:flutter/scheduler.dart'; // For Ticker
 import 'package:triangle_wars/gamepainter.dart';
 import 'gamemanager.dart';
 import 'triangle.dart';
-import 'sphere.dart';
 
 class GameScreen extends StatefulWidget {
   @override
@@ -64,14 +63,15 @@ class _GameScreenState extends State<GameScreen>
   Widget _buildUpgradePanel() {
     return Column(
       children: [
-        ElevatedButton(onPressed: _upgradeSpeed, child: Text('Upgrade Speed')),
+        ElevatedButton(
+            onPressed: _upgradeSpeed, child: const Text('Upgrade Speed')),
         ElevatedButton(
             onPressed: _upgradeAttackPower,
-            child: Text('Upgrade Attack Power')),
+            child: const Text('Upgrade Attack Power')),
         ElevatedButton(
-            onPressed: _upgradeHealth, child: Text('Upgrade Health')),
+            onPressed: _upgradeHealth, child: const Text('Upgrade Health')),
         ElevatedButton(
-            onPressed: _startNewRound, child: Text('Start New Round')),
+            onPressed: _startNewRound, child: const Text('Start New Round')),
       ],
     );
   }
@@ -79,7 +79,7 @@ class _GameScreenState extends State<GameScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Idle Triangle Game")),
+      appBar: AppBar(title: const Text("Idle Triangle Game")),
       body: GestureDetector(
         onPanUpdate: (details) {
           setState(() {
@@ -95,7 +95,7 @@ class _GameScreenState extends State<GameScreen>
         child: Column(
           children: [
             CustomPaint(
-              size: Size(double.infinity, 500),
+              size: const Size(double.infinity, 500),
               painter: GamePainter(gameManager: _gameManager),
             ),
             _buildUpgradePanel(),

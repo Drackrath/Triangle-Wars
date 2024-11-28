@@ -6,6 +6,8 @@ class Sphere {
   double x, y;
   double size;
   double speed;
+  double health = 1;
+  double damage = 1;
   Color color;
   Color fillColor;
 
@@ -14,6 +16,8 @@ class Sphere {
     required this.y,
     required this.size,
     required this.speed,
+    required this.damage,
+    required this.health,
     required this.color,
     required this.fillColor,
   });
@@ -33,4 +37,11 @@ class Sphere {
     x += directionX * speed;
     y += directionY * speed;
   }
+
+  void takeDamage(double amount) {
+    health -= amount;
+  }
+
+  // Check if the sphere is dead
+  bool isDead() => health <= 0;
 }
