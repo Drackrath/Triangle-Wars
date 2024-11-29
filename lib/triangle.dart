@@ -4,11 +4,12 @@ import 'package:triangle_wars/bullet.dart';
 
 class Triangle {
   double x, y;
-  double speed;
+  double velocity;
   double attackSpeed;
   double attackPower;
   double range;
-  double health;
+  double currentHealth;
+  double maxHealth;
   double rotation;
   double rotationSpeed;
   double size;
@@ -17,11 +18,12 @@ class Triangle {
   Triangle({
     required this.x,
     required this.y,
-    this.speed = 1.0,
+    this.velocity = 1.0,
     this.attackSpeed = 1.0,
     this.attackPower = 1.0,
     this.range = 100.0,
-    this.health = 100.0,
+    this.currentHealth = 100.0,
+    this.maxHealth = 100.0,
     this.rotation = 0.0,
     this.rotationSpeed = 0.1,
     this.size = 40.0,
@@ -33,15 +35,24 @@ class Triangle {
   }
 
   void upgradeSpeed(double increment) {
-    speed += increment;
+    velocity += increment;
+  }
+
+  void upgradeRange(double increment) {
+    range += increment;
   }
 
   void upgradeAttackPower(double increment) {
     attackPower += increment;
   }
 
+  void upgradeAttackSpeed(double increment) {
+    attackSpeed += increment;
+  }
+
   void upgradeHealth(double increment) {
-    health += increment;
+    maxHealth += increment;
+    currentHealth += increment;
   }
 
   // Fire a bullet in the direction the triangle is facing
@@ -54,8 +65,8 @@ class Triangle {
     double bulletAngle = rotation - pi / 2;
 
     // Create and add the new bullet to the list
-    bullets
-        .add(Bullet(x: bulletX, y: bulletY, angle: bulletAngle, speed: speed));
+    bullets.add(
+        Bullet(x: bulletX, y: bulletY, angle: bulletAngle, speed: velocity));
   }
 
   // Smoothly rotate triangle to face a specific point (e.g., nearest sphere)

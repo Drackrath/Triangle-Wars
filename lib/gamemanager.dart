@@ -15,7 +15,8 @@ class GameManager {
   int score = 0;
   bool isRoundActive = false;
   double _timeSinceLastShot = 0.0;
-  final double shootInterval = 100; // Time between shots in seconds
+  double shootInterval = 100; // Time between shots in seconds
+  double level = 1;
 
   GameManager({required this.triangle});
 
@@ -23,18 +24,21 @@ class GameManager {
     isRoundActive = true;
     score = 0;
     spheres.clear();
-    spawnSpheres();
+    level++;
+    spawnSpheres(level);
   }
 
-  void spawnSpheres() {
+  void spawnSpheres(double level) {
     Random rand = Random();
-    for (int i = 0; i < rand.nextInt(15); i++) {
+    for (int i = 0; i < rand.nextInt(15) + level; i++) {
       double angle = rand.nextDouble() * 2 * pi;
       double distance = 300 + rand.nextDouble() * 100;
       double x = triangle.x + cos(angle) * distance;
       double y = triangle.y + sin(angle) * distance;
-      double size = 5 + rand.nextDouble() * 40;
+      double health = level;
+      double size = health * 10;
       double speed = 0.2 + rand.nextDouble() * 0.1;
+
       Color color = Color.fromRGBO(
           rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 1);
       Color fillColor = Color.fromRGBO(
@@ -43,9 +47,9 @@ class GameManager {
           x: x,
           y: y,
           size: size,
-          health: 2,
+          health: health,
           speed: speed,
-          damage: 1,
+          damage: 20,
           color: color,
           fillColor: fillColor);
       spheres.add(sphere);
@@ -56,10 +60,21 @@ class GameManager {
     if (!isRoundActive) return;
 
     this.deltaTime = deltaTime;
+    this.shootInterval = this.shootInterval * triangle.attackSpeed;
 
+    // Check for the closest sphere within vision range
+    Sphere? closestSphere;
+    double minDistance = triangle.range;
     // Move each sphere towards the triangle
     for (var sphere in spheres) {
       sphere.move(triangle.x, triangle.y, deltaTime);
+
+      double distance =
+          sqrt(pow(triangle.x - sphere.x, 2) + pow(triangle.y - sphere.y, 2));
+      if (distance < minDistance) {
+        closestSphere = sphere;
+        minDistance = distance;
+      }
     }
 
     // Move each bullet and check collisions
@@ -69,9 +84,13 @@ class GameManager {
 
     _timeSinceLastShot += deltaTime;
 
-    if (_timeSinceLastShot >= shootInterval) {
-      triangle.shoot(); // Trigger the shooting logic
-      _timeSinceLastShot = 0.0; // Reset the timer
+    // Rotate and shoot only if a sphere is within the vision range
+    if (closestSphere != null) {
+      triangle.rotateTowards(closestSphere.x, closestSphere.y);
+      if (_timeSinceLastShot >= shootInterval) {
+        triangle.shoot();
+        _timeSinceLastShot = 0.0; // Reset the timer
+      }
     }
 
     // Check collisions between bullets and spheres
@@ -108,21 +127,17 @@ class GameManager {
       }
     }
 
-    // Remove bullets and spheres
-    bullets.removeWhere((bullet) => bulletsToRemove.contains(bullet));
-    spheres.removeWhere((sphere) => spheresToRemove.contains(sphere));
-
     // Check if the triangle is hit by any spheres
     for (var sphere in spheres) {
       double distance =
           sqrt(pow(triangle.x - sphere.x, 2) + pow(triangle.y - sphere.y, 2));
       if (distance < sphere.size / 2) {
         // Triangle takes damage
-        triangle.health -=
+        triangle.currentHealth -=
             sphere.damage; // Reduce health based on sphere damage
         spheresToRemove.add(sphere); // Mark sphere for removal
 
-        if (triangle.health <= 0) {
+        if (triangle.currentHealth <= 0) {
           // Triangle is dead
           isRoundActive = false;
           saveProgress();
@@ -132,7 +147,8 @@ class GameManager {
       }
     }
 
-    // Remove remaining spheres
+    // Remove bullets and spheres
+    bullets.removeWhere((bullet) => bulletsToRemove.contains(bullet));
     spheres.removeWhere((sphere) => spheresToRemove.contains(sphere));
   }
 
@@ -145,8 +161,13 @@ class GameManager {
   }
 
   void resetGame() {
-    triangle.health = 100.0;
+    triangle.currentHealth = 100.0;
     score = 0;
+    bullets.clear();
+    deltaTime = 0.0;
+    isRoundActive = false;
+    _timeSinceLastShot = 0.0;
+    level = 1;
     spheres.clear();
   }
 }

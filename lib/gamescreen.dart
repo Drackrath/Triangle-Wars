@@ -1,9 +1,9 @@
-// gamescreen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // For Ticker
 import 'package:triangle_wars/gamepainter.dart';
 import 'gamemanager.dart';
 import 'triangle.dart';
+import 'upgradepanel.dart';
 
 class GameScreen extends StatefulWidget {
   @override
@@ -15,7 +15,6 @@ class _GameScreenState extends State<GameScreen>
   late GameManager _gameManager;
   double _lastTime = 0.0;
   late Ticker _ticker;
-  bool _isGameRunning = false;
 
   @override
   void initState() {
@@ -47,40 +46,6 @@ class _GameScreenState extends State<GameScreen>
     _ticker.start();
   }
 
-  void _upgradeSpeed() {
-    setState(() {
-      _gameManager.triangle.upgradeSpeed(1.0);
-    });
-  }
-
-  void _upgradeAttackPower() {
-    setState(() {
-      _gameManager.triangle.upgradeAttackPower(1.0);
-    });
-  }
-
-  void _upgradeHealth() {
-    setState(() {
-      _gameManager.triangle.upgradeHealth(10.0);
-    });
-  }
-
-  Widget _buildUpgradePanel() {
-    return Column(
-      children: [
-        ElevatedButton(
-            onPressed: _upgradeSpeed, child: const Text('Upgrade Speed')),
-        ElevatedButton(
-            onPressed: _upgradeAttackPower,
-            child: const Text('Upgrade Attack Power')),
-        ElevatedButton(
-            onPressed: _upgradeHealth, child: const Text('Upgrade Health')),
-        ElevatedButton(
-            onPressed: _startNewRound, child: const Text('Start New Round')),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,12 +63,16 @@ class _GameScreenState extends State<GameScreen>
           });
         },
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             CustomPaint(
               size: const Size(double.infinity, 500),
               painter: GamePainter(gameManager: _gameManager),
             ),
-            _buildUpgradePanel(),
+            UpgradePanel(
+              gameManager: _gameManager,
+              onStartNewRound: _startNewRound,
+            ),
           ],
         ),
       ),
