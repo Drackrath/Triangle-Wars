@@ -20,7 +20,7 @@ class GameManager {
 
   GameManager({required this.triangle});
 
-  void startNewRound() {
+  void startNextWave() {
     isRoundActive = true;
     score = 0;
     spheres.clear();
@@ -58,36 +58,46 @@ class GameManager {
 
   void update(double deltaTime) {
     if (!isRoundActive) return;
+    if (spheres.isEmpty) startNextWave();
 
     this.deltaTime = deltaTime;
-    this.shootInterval = this.shootInterval * triangle.attackSpeed;
 
-    // Check for the closest sphere within vision range
+    var shootSpeedInterval = this.shootInterval - triangle.attackSpeed;
+
+// Check for the closest sphere within vision range
     Sphere? closestSphere;
     double minDistance = triangle.range;
-    // Move each sphere towards the triangle
+
+// Move each sphere towards the triangle
     for (var sphere in spheres) {
       sphere.move(triangle.x, triangle.y, deltaTime);
 
+      // Calculate distance from the triangle to the sphere's center
       double distance =
           sqrt(pow(triangle.x - sphere.x, 2) + pow(triangle.y - sphere.y, 2));
-      if (distance < minDistance) {
+
+      // Adjust distance to account for the sphere's radius
+      double sphereRadius = sphere.size / 2;
+      double distanceToEdge = distance - sphereRadius;
+
+      // Check if the sphere is within the vision range
+      if (distanceToEdge <= triangle.range && distanceToEdge < minDistance) {
         closestSphere = sphere;
-        minDistance = distance;
+        minDistance = distanceToEdge;
       }
     }
 
-    // Move each bullet and check collisions
+// Move each bullet and check collisions
     for (var bullet in bullets) {
       bullet.move(deltaTime);
     }
 
     _timeSinceLastShot += deltaTime;
 
-    // Rotate and shoot only if a sphere is within the vision range
+// Rotate and shoot only if a sphere is within the vision range
     if (closestSphere != null) {
       triangle.rotateTowards(closestSphere.x, closestSphere.y);
-      if (_timeSinceLastShot >= shootInterval) {
+      if (_timeSinceLastShot >= shootSpeedInterval) {
         triangle.shoot();
         _timeSinceLastShot = 0.0; // Reset the timer
       }
@@ -169,5 +179,6 @@ class GameManager {
     _timeSinceLastShot = 0.0;
     level = 1;
     spheres.clear();
+    startNextWave();
   }
 }

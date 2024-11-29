@@ -41,7 +41,7 @@ class _GameScreenState extends State<GameScreen>
 
   void _startNewRound() {
     setState(() {
-      _gameManager.startNewRound();
+      _gameManager.resetGame();
     });
     _ticker.start();
   }
